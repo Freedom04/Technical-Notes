@@ -28,17 +28,69 @@ pipenv install ipykernel
 python -m ipykernel install --user --name=VirtualEnvironment --display-name VirtualEnvironment
 ```
 
-
-
 ## 2 Dataset
 
 ### 2.1 sciCAR dataset
 
-For the sci-CAR dataset, only co-assay cells were used for further analysis, and cells with fewer than 200 peaks or genes and peaks or genes with fewer than 10 cells were removed from further analysis.
+For the sci-CAR dataset, only co-assay cells were used for further analysis, and cells with fewer than 200 peaks or genes, and peaks or genes with fewer than 10 cells were removed from further analysis.
+
+Cells with the following conditions will be removed:
+
+- cells with fewer than 200 peaks or genes
+- cells with peaks or genes with fewer than 10 cells
+
+#### 2.1.1 Barcode
+
+Barcodes play a crucial role in identifying the origin of sequencing reads. Barcodes are crucial for distinguishing the data from different cells when they are sequenced together in a single run.
+
+- **Gene Barcode in scRNA-seq**: In scRNA-seq, a cell is broken open and the genetic information expressed inside is labeled with a molecular tag that serves as a barcode. This barcode is unique to each cell, allowing the origin of the RNA to be traced back to the individual cell it came from. This means that when several cells are sequenced at the same time, they can be tracked individually based on their unique barcodes. 
+
+- **ATAC Barcode in scATAC-seq**: In scATAC-seq, each cell or nucleus is tagged at regions of open chromatin using a hyperactive Tn5 transposase in a bulk reaction⁶. Barcoding and amplification of tagged sites within individual droplets generate a library of fragments representative of the original open chromatin profile of each cell. Similar to scRNA-seq, each cell or nucleus receives a unique barcode, allowing the origin of the chromatin accessibility data to be traced back to the individual cell or nucleus it came from. 
+
+#### gene name and atac name
+
+In scRNA-seq and scATAC-seq, the terms "gene name" and "ATAC name" typically refer to the identifiers used for genes and genomic regions, respectively. 
+
+- **Gene Name in scRNA-seq**: In scRNA-seq, each row in the count matrix corresponds to a gene. The gene identifier, such as an Ensembl ID or gene symbol, is usually used as the row name. These provide an unambiguous mapping between each row of the matrix and the corresponding gene. 
+
+- **ATAC Name in scATAC-seq**: In scATAC-seq, each row in the count matrix corresponds to a genomic region, often referred to as a "peak", which represents a region of open chromatin that is accessible to the transposase used in the ATAC-seq experiment. 
+
+These identifiers are crucial for distinguishing the data from different genes and genomic regions when they are sequenced together in a single run.
+
+#### Peak
+
+In scATAC-seq, a "peak" refers to a region of the genome that is accessible to the transposase used in the ATAC-seq experiment. These regions of open chromatin are often associated with active regulatory elements such as promoters and enhancers. 
+
+#### 2.1.2 sciCAR_cellline_rna_normalize_count.mtx
+
+The `sciCAR_cellline_rna_normalize_count.mtx` file is a matrix file that contains normalized count data from a single-cell RNA sequencing (scRNA-seq) experiment. The rows and columns of this matrix typically represent genes and individual cells, respectively. 
+
+- **Rows**: Each row in the matrix corresponds to a gene. The gene identifier is usually used as the row name. 
+
+- **Columns**: Each column in the matrix corresponds to a single cell. The cell identifier is usually used as the column name. 
+- **Value**: The value in each cell of the matrix represents the normalized count of transcripts(i. e., the expression level) of a particular gene in a particular cell. 
+
+#### 2.1.3 sciCAR_cellline_atac_normalize_count.mtx
+
+The `sciCAR_cellline_atac_normalize_count.mtx` file is a matrix file that contains normalized count data from a single-cell Assay for Transposase-Accessible Chromatin using sequencing (scATAC-seq) experiment. The rows and columns of this matrix typically represent genomic regions(peaks) and individual cells, respectively. 
+
+- **Rows**: Each row in the matrix corresponds to a genomic region, often referred to as a“peak”, which represents a region of open chromatin that is accessible to the transposase used in the ATAC-seq experiment. 
+
+- **Columns**: Each column in the matrix corresponds to a single cell. The cell identifier is usually used as the column name. 
+
+- **Value**: The value in each cell of the matrix represents the normalized count of transposase-accessible sites of a particular genomic region in a particular cell.
+
+#### 2.1.4 gene expression: count matrix(cells $\times$ genes)
+
+In the count matrix, **the rows represent individual cells, while the columns represent different genes**. Each entry in the matrix represents the number of sequencing reads that align to a specific gene in a particular cell. The count matrix provides information about the expression levels of various genes across individual cells, allowing for the analysis of gene expression patterns, identification of cell types, and exploration of cellular heterogeneity within a population.
+
+#### 2.1.5 atac expression: count matrix(cells $\times$ peaks)
+
+In scATAC-seq data, a“peak” refers to a region of the genome that is predicted to represent a region of open chromatin. Each row of the peak/cell matrix represents such a region. Each value in the matrix represents the number of Tn5 integration sites for each single barcode(i. e., a cell) that maps within each peak. This is analogous to the gene expression count matrix used to analyze single-cell RNA-seq. However, instead of genes, each row of the matrix represents a region of the genome(a peak), that is predicted to represent a region of open chromatin. The second major step of ATAC-seq data analysis is to identify these accessible regions(also referred to as peaks), and this forms the basis for advanced analysis.
 
 ### 2.2 Paired-seq dataset
 
-For Paired-seq dataset, cells with fewer than 200 peaks or genes, peaks, or genes with fewer than 10 cells or peaks with more than 336 cells were removed from further analysis.
+For Paired-seq dataset, cells with fewer than 200 peaks or genes, and peaks or genes with fewer than 10 cells or peaks with more than 336 cells were removed from further analysis.
 
 ### 2.3 SNARE-seq dataset
 
