@@ -30,16 +30,15 @@ python -m ipykernel install --user --name=VirtualEnvironment --display-name Virt
 
 ## 2 Dataset
 
-### 2.1 sciCAR dataset
+### 2.1 gene expression: count matrix(cells $\times$ genes)
 
-For the sci-CAR dataset, only co-assay cells were used for further analysis, and cells with fewer than 200 peaks or genes, and peaks or genes with fewer than 10 cells were removed from further analysis.
+In the count matrix, **the rows represent individual cells, while the columns represent different genes**. Each entry in the matrix represents the number of sequencing reads that align to a specific gene in a particular cell. The count matrix provides information about the expression levels of various genes across individual cells, allowing for the analysis of gene expression patterns, identification of cell types, and exploration of cellular heterogeneity within a population.
 
-Cells with the following conditions will be removed:
+### 2.2 atac expression: peak matrix(cells $\times$ peaks)
 
-- cells with fewer than 200 peaks or genes
-- cells with peaks or genes with fewer than 10 cells
+In scATAC-seq data, a“peak” refers to a region of the genome that is predicted to represent a region of open chromatin. Each row of the matrix represents such a region. Each value in the matrix represents the number of Tn5 integration sites for each single barcode that maps within each peak. This is analogous to the gene expression count matrix used to analyze single-cell RNA-seq. However, instead of genes, each row of the matrix represents a region of the genome(a peak), that is predicted to represent a region of open chromatin.
 
-#### 2.1.1 Barcode
+### 2.3 Barcode
 
 Barcodes play a crucial role in identifying the origin of sequencing reads. Barcodes are crucial for distinguishing the data from different cells when they are sequenced together in a single run.
 
@@ -47,7 +46,7 @@ Barcodes play a crucial role in identifying the origin of sequencing reads. Barc
 
 - **ATAC Barcode in scATAC-seq**: In scATAC-seq, each cell or nucleus is tagged at regions of open chromatin using a hyperactive Tn5 transposase in a bulk reaction⁶. Barcoding and amplification of tagged sites within individual droplets generate a library of fragments representative of the original open chromatin profile of each cell. Similar to scRNA-seq, each cell or nucleus receives a unique barcode, allowing the origin of the chromatin accessibility data to be traced back to the individual cell or nucleus it came from. 
 
-#### gene name and atac name
+### 2.4 gene name and atac name
 
 In scRNA-seq and scATAC-seq, the terms "gene name" and "ATAC name" typically refer to the identifiers used for genes and genomic regions, respectively. 
 
@@ -57,11 +56,15 @@ In scRNA-seq and scATAC-seq, the terms "gene name" and "ATAC name" typically ref
 
 These identifiers are crucial for distinguishing the data from different genes and genomic regions when they are sequenced together in a single run.
 
-#### Peak
+### 2.5 Peak
 
 In scATAC-seq, a "peak" refers to a region of the genome that is accessible to the transposase used in the ATAC-seq experiment. These regions of open chromatin are often associated with active regulatory elements such as promoters and enhancers. 
 
-#### 2.1.2 sciCAR_cellline_rna_normalize_count.mtx
+### 2.6 sciCAR dataset
+
+For the sci-CAR dataset, only co-assay cells were used for further analysis, and cells with fewer than 200 peaks or genes, and peaks or genes with fewer than 10 cells were removed from further analysis.
+
+#### 2.6.1 sciCAR_cellline_rna_normalize_count.mtx
 
 The `sciCAR_cellline_rna_normalize_count.mtx` file is a matrix file that contains normalized count data from a single-cell RNA sequencing (scRNA-seq) experiment. The rows and columns of this matrix typically represent genes and individual cells, respectively. 
 
@@ -70,7 +73,7 @@ The `sciCAR_cellline_rna_normalize_count.mtx` file is a matrix file that contain
 - **Columns**: Each column in the matrix corresponds to a single cell. The cell identifier is usually used as the column name. 
 - **Value**: The value in each cell of the matrix represents the normalized count of transcripts(i. e., the expression level) of a particular gene in a particular cell. 
 
-#### 2.1.3 sciCAR_cellline_atac_normalize_count.mtx
+#### 2.6.2 sciCAR_cellline_atac_normalize_count.mtx
 
 The `sciCAR_cellline_atac_normalize_count.mtx` file is a matrix file that contains normalized count data from a single-cell Assay for Transposase-Accessible Chromatin using sequencing (scATAC-seq) experiment. The rows and columns of this matrix typically represent genomic regions(peaks) and individual cells, respectively. 
 
@@ -80,19 +83,11 @@ The `sciCAR_cellline_atac_normalize_count.mtx` file is a matrix file that contai
 
 - **Value**: The value in each cell of the matrix represents the normalized count of transposase-accessible sites of a particular genomic region in a particular cell.
 
-#### 2.1.4 gene expression: count matrix(cells $\times$ genes)
-
-In the count matrix, **the rows represent individual cells, while the columns represent different genes**. Each entry in the matrix represents the number of sequencing reads that align to a specific gene in a particular cell. The count matrix provides information about the expression levels of various genes across individual cells, allowing for the analysis of gene expression patterns, identification of cell types, and exploration of cellular heterogeneity within a population.
-
-#### 2.1.5 atac expression: count matrix(cells $\times$ peaks)
-
-In scATAC-seq data, a“peak” refers to a region of the genome that is predicted to represent a region of open chromatin. Each row of the peak/cell matrix represents such a region. Each value in the matrix represents the number of Tn5 integration sites for each single barcode(i. e., a cell) that maps within each peak. This is analogous to the gene expression count matrix used to analyze single-cell RNA-seq. However, instead of genes, each row of the matrix represents a region of the genome(a peak), that is predicted to represent a region of open chromatin. The second major step of ATAC-seq data analysis is to identify these accessible regions(also referred to as peaks), and this forms the basis for advanced analysis.
-
-### 2.2 Paired-seq dataset
+### 2.7 Paired-seq dataset
 
 For Paired-seq dataset, cells with fewer than 200 peaks or genes, and peaks or genes with fewer than 10 cells or peaks with more than 336 cells were removed from further analysis.
 
-### 2.3 SNARE-seq dataset
+### 2.8 SNARE-seq dataset
 
 For SNARE-seq dataset, cells with fewer than 200 peaks or genes and peaks or genes with fewer than 10 cells were removed from further analysis.
 
@@ -102,27 +97,26 @@ scMVP consists of a two-channel encoder network and a two-channel decoder to int
 
 ![scMVP](resources/scMVP.png)
 
-### 3.1 The RNA encoder
+1. Two independent channels of attention-based networks are utilized to the backbone of the encoder model to adapt inputs of the different modalities, including canonical mask attention subnetwork for scRNA and transformer derived self-attention for TF-IDF transformed scATAC, and then joint together to **derive the posterior distribution parameters of common latent embedding z following Gaussian mixture model prior**.
+   $$
+   z = \mu_z+\sigma_zI, \ I \thicksim N(0,1) 
+   $$
 
-$$
-RNA\_Encoder(x)=encoder(x)*px\_decoder\_aux(x)
-$$
+2. The imputed scRNA and scATAC profiles are reconstructed by an attention based two-channels decoder network, which shares a similar network structure with the encoder network.
 
-$$
-encoder(x)=ReLu(BatchNorm(LayerNorm(Linear(x)))
-$$
+3. An auxiliary attention module with input of cluster probability of common latent embedding z (denoted as $p(c| z))$ in the prior distribution is utilized to **weight each decoder channel of the imputed scRNA and scATAC profile**.
 
-$$
-px\_decoder\_aux(x) = Sigmoid(Linear(Linear(x)))
-$$
+4. The imputed RNA and ATAC are produced by the mean value of Gamma distribution for scRNA data and the Poisson distribution for scATAC data, respectively.
 
-$$
-mean\_encoder(x)=Linear(x)
-$$
+5. To **guarantee the embedding consistency between the original and imputed data**, two single-channel encoders are used to embed the imputed RNA and ATAC separately to minimize the KL divergence between common latent embedding z and each imputed embedding.
 
-$$
-var\_encoder(x)=Linear(x)
-$$
+### 3.1 RNA encoder
+
+RNA branch of the encoder sequentially concatenates a 128-dimensional hidden layer, a layer normalization layer, a batch normalization layer, and an output Relu activation layer, which is weighted by a mask attention tensor generated from the first 128-dimensional hidden layer.
+
+<img src="resources/RNA_branch_encoder.png" alt="RNA_branch_encoder" style="zoom:20%;" />
+
+
 
 ```python
 # Parameters for latent distribution
@@ -133,27 +127,11 @@ latent = reparameterize_gaussian(q_m, q_v)
 return q_m, q_v, latent
 ```
 
-$$
-\mu_R=q\_m, \sigma_R=q\_v
-$$
+### 3.2 ATAC encoder
 
-### 3.2 The ATAC encoder
+The ATAC branch of the encoder sequentially concatenates a 128-dimensional hidden layer, a batch normalization layer, a Relu activation layer, and a multi-heads self-attention layer, which is designed as 8 self-attention heads and each head takes a 16-dimension feature in this study, and a layer normalization.
 
-$$
-encoder(x)=ReLu(BatchNorm(LayerNorm(Linear(x)))
-$$
-
-$$
-px\_decoder\_aux(x) = Sigmoid(Linear(Linear(x)))
-$$
-
-$$
-mean\_encoder(x)=Linear(x)
-$$
-
-$$
-var\_encoder(x)=Linear(x)
-$$
+<img src="resources/ATAC_branch_encoder.png" alt="ATAC_branch_encoder" style="zoom:20;" />
 
 ```python
 # Parameters for latent distribution
@@ -172,31 +150,9 @@ latent = reparameterize_gaussian(q_m, q_v)
 return q_m, q_v, latent
 ```
 
-
-
-Encodes the data into latent space using the encoder network.
-
-Generates a mean `q_m` and variance `q_v` (clamped to ( [-5, 5]))
-
-Samples a new value from an i.i.d. multivariate normal $\sim N(q\_m,\mathbf{I}q\_v))$
-
 ### 3.3 A two-channel encoder
 
 scMVP uses a **mask attention channel** for the RNA branch and a **self-attention channel** for the ATAC branch to identify the cell type-associated information and capture the intra-omics distal correlation. The output two channels are combined together to form a shared linear layer (256 dimensions).
-
-<img src="resources/two_channel_encoder_network.png" alt="two_channel_encoder_network" style="zoom: 45%;" />
-
-#### 3.3.1 The RNA branch of the encoder
-
-RNA branch of the encoder sequentially concatenates a 128-dimensional hidden layer, a layer normalization layer, a batch normalization layer, and an output Relu activation layer, which is weighted by a mask attention tensor generated from the first 128-dimensional hidden layer.
-
-<img src="resources/RNA_branch_of_encoder.png" alt="RNA_branch_of_encoder" style="zoom: 45%;" />
-
-#### 3.3.2 The ATAC branch of the encoder
-
-The ATAC branch of the encoder sequentially concatenates a 128-dimensional hidden layer, a batch normalization layer, a Relu activation layer, and a multi-heads self-attention layer, which is designed as 8 self-attention heads and each head takes a 16-dimension feature in this study, and a layer normalization.
-
-<img src="resources/ATAC_branch_of_encoder.png" alt="ATAC_branch_of_encoder" style="zoom: 45%;" />
 
 ### 3.4 The attention module
 
@@ -206,7 +162,6 @@ The attention module receives the $p(c|z)$ for all K components as input, by a l
 
 A two-channel decoder is employed to determine the distribution parameters of NB and ZIP for the reconstruction of scRNA-seq and scATAC-seq, which utilize a similar network structure with the network except for **an attention module**.
 
-<img src="resources/two_channel_decoder_network.png" alt="two_channel_decoder_network" style="zoom:45%;" />
 $$
 p(c)=Cat(\pi)=\prod_{k=1}^K{\pi _k^{c_k}}, \ \pi = [\pi_1,\pi_2,...,\pi_K]
 $$
@@ -216,6 +171,12 @@ p(z|c)=N(z|\mu_c,\sigma_cI)=\frac{1}{\sqrt{2\pi}\sigma}e^{(-\frac{(z-\mu_c)^2}{2
 $$
 
 Here, $c$ represents one of the $K$ components(clusters) of Gaussian mixture distribution, which is extracted from a categorical distribution with probability $\pi_c$, then the common embedding latent variable $z$ is derived from the component $c$ with a probability $p(z|c)=N(z|\mu_c,\sigma_cI)$, which means the latent variable $z$ associated cells belongs to a specific cluster (cell type) $c$.
+
+#### 3.5.1 RNA decoder
+
+
+
+
 $$
 \alpha_x,\beta_x=Decoder_x(z)
 $$
@@ -229,6 +190,9 @@ p\left(\mathrm{x} \mid \mu_x\right)=Poisson\left(\mu_x\right)=\frac{\mu_x^{\math
 $$
 
 Then, a two-channel decode network is used to generate the parameters of the NB and ZIP distribution to reconstruct the original observed $x$ (RNA) and TF-IDF transformed $y$ (ATAC) from the common latent variable $z$. As a result, the RNA counts can be imputed with the mean of the Poisson distribution.
+
+#### 3.5.2 ATAC decoder
+
 $$
 \mu_y, \tau_y=Decoder_y(z)
 $$
